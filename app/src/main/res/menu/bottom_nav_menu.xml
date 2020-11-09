@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_sport"
+        android:icon="@mipmap/sport_unselected"
+        android:title="@string/title_sport" />
+
+    <item
+        android:id="@+id/navigation_earphone"
+        android:icon="@mipmap/earphone_selected"
+        android:title="@string/title_earphone" />
+
+</menu>

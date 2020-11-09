@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Heart Rate</string>
+    <string name="title_sport">运动</string>
+    <string name="title_earphone">耳机</string>
+    <string name="bind">+绑定设备</string>
+    <string name="unbind">解绑设备</string>
+    <string name="disconnect">设备未连接!</string>
+    <string name="connected">设备已连接</string>
+    <string name="tired_tip">疲劳驾驶提醒</string>
+</resources>

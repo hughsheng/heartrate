@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base application theme. -->
+    <style name="Theme.HeartRate" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/purple_500</item>
+        <item name="colorPrimaryVariant">@color/purple_700</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/teal_200</item>
+        <item name="colorSecondaryVariant">@color/teal_700</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <!--去掉点击水波纹效果-->
+        <item name="android:selectableItemBackground">@null</item>
+        <!--布局内容延展到状态栏-->
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+
+
+
+    <style name="tab_menu_item" parent="Widget.AppCompat.CompoundButton.RadioButton">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:button">@null</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingTop">6dp</item>
+        <item name="android:textColor">@color/selector_bottom</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:drawablePadding">2dp</item>
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
+    <!-- ToolBar菜单样式 -->
+    <style name="ToolbarStyle" parent="Widget.AppCompat.Toolbar">
+        <!-- 更换Toolbar OVerFlow menu icon -->
+        <!--<item name="actionOverflowButtonStyle">@style/OverFlowIcon</item>-->
+        <!-- 设置 toolbar 溢出菜单的文字的颜色 -->
+        <!--<item name="android:textColor">@android:color/holo_red_dark</item>-->
+        <!-- 设置 显示在toobar上菜单文字的颜色 -->
+        <item name="actionMenuTextColor">@android:color/white</item>
+        <!-- 设置该属性边距为0dp-->
+        <item name="contentInsetStart">0dp</item>
+        <!-- 设置toolbar 弹出菜单的字体大小和溢出菜单文字大小-->
+        <!--<item name="android:textSize">15sp</item>-->
+    </style>
+</resources>
