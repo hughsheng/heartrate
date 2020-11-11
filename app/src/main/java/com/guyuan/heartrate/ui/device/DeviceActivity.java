@@ -10,6 +10,7 @@ import android.os.IBinder;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -85,6 +86,8 @@ public class DeviceActivity extends BaseActivity {
                         hideLoading();
                         if (code == REQUEST_SUCCESS) {//连接成功
                             application.sendStatus(bleDev.getAddress(), true);
+                            bluetoothClient.registerConnectStatusListener(bleDev.getAddress(),
+                                    application.getConnectStatusListener());
                             finish();
                         } else {
                             application.sendStatus("", false);

@@ -37,6 +37,7 @@ public class AppApplication extends Application {
                 sendStatus(mac, true);
             } else if (status == STATUS_DISCONNECTED) {
                 sendStatus("", false);
+                bleClient.unregisterConnectStatusListener(mac, connectStatusListener);
             }
         }
     };

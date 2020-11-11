@@ -62,8 +62,10 @@ public class MainActivity extends BaseActivity implements RadioGroup.OnCheckedCh
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(BlueToothConnectBusBean bean) {
         if (bean.isConnect()) {
+            showToastTip("连接成功");
             connectState();
         } else {
+            showToastTip("断开连接");
             disConnectedState();
         }
     }

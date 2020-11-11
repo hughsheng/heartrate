@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bg_window"
+    android:paddingBottom="10dp"
     tools:context=".ui.sport.SportFragment">
 
 
@@ -48,10 +49,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="40dp"
-        android:layout_marginTop="100dp"
         android:text="@string/tired_tip"
         android:textColor="@color/white"
         android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/tip_iv"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/view" />
 
@@ -70,17 +71,16 @@
         android:id="@+id/tip_iv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="80dp"
+        android:layout_marginBottom="20dp"
         android:src="@mipmap/notice_off"
+        app:layout_constraintBottom_toTopOf="@+id/connect_time_tv"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView2" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/connect_time_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
         android:text="@string/connect_time"
         android:textColor="@color/white"
         android:textSize="16sp"
@@ -96,7 +96,7 @@
         android:id="@+id/cm"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:format="00时00分00秒"
+        android:format="%s"
         android:textColor="@color/white"
         android:textSize="16sp"
         android:visibility="gone"

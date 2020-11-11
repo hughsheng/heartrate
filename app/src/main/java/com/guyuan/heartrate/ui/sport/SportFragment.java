@@ -1,7 +1,9 @@
 package com.guyuan.heartrate.ui.sport;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.SystemClock;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +24,15 @@ import com.guyuan.heartrate.R;
 import com.guyuan.heartrate.base.BaseFragment;
 import com.guyuan.heartrate.util.CommonUtl;
 import com.guyuan.heartrate.util.ConstanceValue;
+import com.inuker.bluetooth.library.connect.response.BleReadResponse;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
+import java.util.UUID;
+
+import static com.inuker.bluetooth.library.Constants.REQUEST_SUCCESS;
 import static com.inuker.bluetooth.library.Constants.STATUS_DEVICE_CONNECTED;
 
 public class SportFragment extends BaseFragment {
@@ -71,6 +81,7 @@ public class SportFragment extends BaseFragment {
         tip_iv = getView().findViewById(R.id.tip_iv);
         boolean isConnect = bluetoothClient.getConnectStatus(ConstanceValue.macAddress) == STATUS_DEVICE_CONNECTED;
         setUI(isConnect);
+        getHeartRate();
     }
 
     public void setUI(boolean connect) {
@@ -90,7 +101,34 @@ public class SportFragment extends BaseFragment {
     }
 
 
-    private void getHeartRate(){
+    private void getHeartRate() {
+        UUID heartServiceUUID = UUID.fromString(ConstanceValue.HEART_RATE_SERVICE_UUID);
+        UUID heartCharacteristicUUID = UUID.fromString(ConstanceValue.HEART_RATE_CHARACTERISTIC_UUID);
+        new Thread() {
+            @Override
+            public void run() {
+                super.run();
+                while (true) {
+                    try {
+                        Thread.sleep(2000);
+                    //    if (!TextUtils.isEmpty(ConstanceValue.macAddress)) {
+                            bluetoothClient.read(ConstanceValue.macAddress, heartServiceUUID, heartCharacteristicUUID,
+                                    new BleReadResponse() {
+                                        @Override
+                                        public void onResponse(int code, byte[] data) {
+                                            if (code == REQUEST_SUCCESS) {
+                                                status_tv.setText(Math.random() + "");
+                                                //status_tv.setText(String.valueOf(CommonUtl.bytesToInt(data, 0)));
+                                            }
+                                        }
+                                    });
+                    //    }
 
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }.start();
     }
 }

@@ -8,16 +8,38 @@ android {
 
     defaultConfig {
         applicationId "com.guyuan.heartrate"
-        minSdkVersion 24
+        minSdkVersion 21
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        release {
+            storeFile file('keystore\\veger.jks')
+            storePassword 'veger001'
+            keyAlias = 'veger'
+            keyPassword 'veger001'
+        }
+
+        debug {
+            storeFile file('keystore\\veger.jks')
+            storePassword 'veger001'
+            keyAlias = 'veger'
+            keyPassword 'veger001'
+        }
+    }
+
     buildTypes {
+
+        debug {
+            signingConfig signingConfigs.debug
+        }
+
         release {
             minifyEnabled false
+            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
