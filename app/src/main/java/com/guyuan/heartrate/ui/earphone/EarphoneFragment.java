@@ -1,6 +1,7 @@
 package com.guyuan.heartrate.ui.earphone;
 
 import android.bluetooth.BluetoothClass;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,7 +16,13 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.guyuan.heartrate.R;
 import com.guyuan.heartrate.base.BaseFragment;
+import com.guyuan.heartrate.service.CenterService;
+import com.guyuan.heartrate.ui.MainActivity;
 import com.guyuan.heartrate.ui.device.DeviceActivity;
+import com.guyuan.heartrate.util.CommonUtl;
+import com.guyuan.heartrate.util.ConstanceValue;
+
+import static com.inuker.bluetooth.library.Constants.STATUS_DEVICE_CONNECTED;
 
 public class EarphoneFragment extends BaseFragment {
 
@@ -51,9 +58,19 @@ public class EarphoneFragment extends BaseFragment {
                 if (connect.equals(getString(R.string.bind))) {
                     DeviceActivity.start(getContext());
                 } else if (connect.equals(getString(R.string.unbind))) {
-                    // todo 解绑
+                    bluetoothClient.disconnect(ConstanceValue.macAddress);
                 }
             }
         });
+        boolean isConnect = bluetoothClient.getConnectStatus(ConstanceValue.macAddress) == STATUS_DEVICE_CONNECTED;
+        setUI(isConnect);
+    }
+
+    public void setUI(boolean connect) {
+        if (connect) {
+            bindTv.setText(getString(R.string.unbind));
+        } else {
+            bindTv.setText(getString(R.string.bind));
+        }
     }
 }

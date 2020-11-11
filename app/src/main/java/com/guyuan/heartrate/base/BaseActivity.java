@@ -1,5 +1,8 @@
 package com.guyuan.heartrate.base;
 
+import android.Manifest;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -8,6 +11,8 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -25,7 +30,15 @@ import androidx.appcompat.widget.AppCompatEditText;
 import androidx.fragment.app.FragmentManager;
 import androidx.viewbinding.ViewBinding;
 
+import com.github.dfqin.grantor.PermissionListener;
+import com.github.dfqin.grantor.PermissionsUtil;
 import com.google.android.material.snackbar.Snackbar;
+import com.guyuan.heartrate.R;
+import com.guyuan.heartrate.base.app.AppApplication;
+import com.guyuan.heartrate.util.ConstanceValue;
+import com.guyuan.heartrate.util.LoadingDialogFragment;
+import com.inuker.bluetooth.library.BluetoothClient;
+import com.inuker.bluetooth.library.connect.listener.BleConnectStatusListener;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -39,16 +52,18 @@ import java.util.ArrayList;
  */
 public abstract class BaseActivity extends AppCompatActivity {
 
-    private static final int REQUEST_CODE_PERMISSION = 9527;
-    private AlertDialog loadingDialog;
     protected FragmentManager fragmentManager;
-    private AlertDialog alertDialog;
+    protected AppApplication application = AppApplication.getInstance();
+    protected BluetoothClient bluetoothClient = application.getBleClient();
+    protected LoadingDialogFragment loadingDialogFragment;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(getLayoutID());
         fragmentManager = getSupportFragmentManager();
+        loadingDialogFragment = LoadingDialogFragment.newInstance();
+        loadingDialogFragment.setColor(R.color.white);
         init(savedInstanceState);
     }
 
@@ -100,151 +115,54 @@ public abstract class BaseActivity extends AppCompatActivity {
 
 
     /**
-     * 某些功能需要确保先已经获得用户授权才可以实现}
-     * 然后才在这个回调中启动这些功能。
+     * 检查该设备是否打开蓝牙
      */
-    public void onAllPermissionsGranted() {
-
-    }
-
-    public void checkPermissions(String... permissions) {
-        ArrayList<String> request = new ArrayList<>();
-        for (String per : permissions) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                int result = checkSelfPermission(per);
-                if (PackageManager.PERMISSION_GRANTED != result) {
-                    request.add(per);
-                }
-            }
-        }
-        if (!request.isEmpty()) {
-            String[] list = new String[request.size()];
-            for (int i = 0; i < request.size(); i++) {
-                list[i] = request.get(i);
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                requestPermissions(list, REQUEST_CODE_PERMISSION);
+    private void checkBleSwitch() {
+        BluetoothManager bluetoothManager = (BluetoothManager) this.getSystemService(Context.BLUETOOTH_SERVICE);
+        if (bluetoothManager != null) {
+            BluetoothAdapter blueToothAdapter = bluetoothManager.getAdapter();
+            if (blueToothAdapter == null || !blueToothAdapter.isEnabled()) {
+                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                startActivity(enableBtIntent);
+                Toast.makeText(this, "请允许蓝牙权限，否则无法正常使用app！", Toast.LENGTH_SHORT).show();
+            } else {
+                onBlueToothOpened();
             }
         } else {
-            onAllPermissionsGranted();
+            Toast.makeText(this, "请打开蓝牙，否则无法正常使用app！", Toast.LENGTH_SHORT).show();
         }
     }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        boolean isGranted = true;
-        final String[] rational = new String[grantResults.length];
-        int index = 0;
-        if (requestCode == REQUEST_CODE_PERMISSION) {
-            for (int i = 0; i < grantResults.length; i++) {
-                if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
-                    isGranted = false;
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        if (shouldShowRequestPermissionRationale(permissions[i])) {
-                            rational[index++] = permissions[i];
-                        } else {
-                            showToastTip("权限被限制，请到APP设置中授权。");
-                            onBackPressed();
-                            return;
-                        }
-                    }
-                }
-            }
-        }
-        if (isGranted) {
-            onAllPermissionsGranted();
-        } else {
-            if (index > 0) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("请授权");
-                StringBuilder sb = new StringBuilder();
-                sb.append("为了使用此界面的功能，需要获得以下授权：\n");
-                for (String temp : rational) {
-                    sb.append(temp).append("\n");
-                }
-                sb.append("点击确定重新授权，点击取消退出此界面。");
-                builder.setMessage(sb.toString());
-                builder.setPositiveButton("确定",
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                alertDialog.dismiss();
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                    requestPermissions(rational, REQUEST_CODE_PERMISSION);
-                                }
-                            }
-                        });
-                builder.setNegativeButton("取消",
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                alertDialog.dismiss();
-                                onBackPressed();
-                            }
-                        });
-                builder.setCancelable(false);
-                alertDialog = builder.create();
-                alertDialog.show();
-            } else {
-                showToastTip("权限被限制，请到APP设置中授权。");
-                onBackPressed();
-            }
-        }
-    }
-
-    //当键盘弹出来的时候，点击屏幕空白处，将受收起键盘 by leo
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent ev) {
-        if (ev.getAction() == MotionEvent.ACTION_DOWN) {
-            View v = getCurrentFocus();
-            if (isToHide(v, ev)) {
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                if (imm != null) {
-                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                }
-            }
-            return super.dispatchTouchEvent(ev);
-        }
-        if (getWindow().superDispatchTouchEvent(ev)) {
-            return true;
-        }
-        return onTouchEvent(ev);
-    }
-
-    private boolean isToHide(View v, MotionEvent event) {
-        if (v != null && (v instanceof EditText || v instanceof AppCompatEditText)) {
-            int[] leftTop = {0, 0};
-            v.getLocationInWindow(leftTop);
-            int left = leftTop[0];
-            int top = leftTop[1];
-            int bottom = top + v.getHeight();
-            int right = left + v.getWidth();
-            if (event.getX() > left && event.getX() < right
-                    && event.getY() > top && event.getY() < bottom) {
-                return false;
-            } else {
-                return true;
-            }
-        }
-        return false;
-    }
-
 
     /**
-     * 跳转页面
-     *
-     * @param clz    所跳转的目的Activity类
-     * @param bundle 跳转所携带的信息
+     * 蓝牙和位置权限
      */
-    public void startActivity(Class<?> clz, Bundle bundle) {
-        Intent intent = new Intent(this, clz);
-        if (bundle != null) {
-            intent.putExtras(bundle);
-        }
-        startActivity(intent);
+    public void requestBle() {
+
+        PermissionsUtil.requestPermission(this, new PermissionListener() {
+            @Override
+            public void permissionGranted(@NonNull String[] permissions) {
+                // 检测蓝牙开关
+                checkBleSwitch();
+            }
+
+            @Override
+            public void permissionDenied(@NonNull String[] permissions) {
+                Log.e("Fuck", "用户拒绝了-蓝牙权限");
+            }
+        }, new String[]{
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.BLUETOOTH,
+                Manifest.permission.BLUETOOTH_ADMIN,
+        }, false, null);
     }
+
+
+    protected void onBlueToothOpened() {
+    }
+
+    ;
+
 
     public void showToastTip(int resId) {
         String txt = getString(resId);
@@ -267,19 +185,22 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     public void showLoading(FragmentManager manager) {
-        hideLoading();
-        //    loadingDialog = AlertDialogUtils.showLoading(this, null, null);
+        loadingDialogFragment.show(manager, LoadingDialogFragment.TAG);
     }
 
     public void showLoadingWithStatus(FragmentManager manager, String status) {
-        hideLoading();
-        //    loadingDialog = AlertDialogUtils.showLoading(this, null, status);
+        loadingDialogFragment.showWithStatus(manager, status);
     }
 
     public void hideLoading() {
-        if (loadingDialog != null) {
-            loadingDialog.dismiss();
-            loadingDialog = null;
+        loadingDialogFragment.dismiss();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (bluetoothClient != null && !TextUtils.isEmpty(ConstanceValue.macAddress)) {
+            bluetoothClient.disconnect(ConstanceValue.macAddress);
         }
     }
 }

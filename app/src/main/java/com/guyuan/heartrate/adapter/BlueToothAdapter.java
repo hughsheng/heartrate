@@ -1,6 +1,8 @@
 package com.guyuan.heartrate.adapter;
 
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +16,7 @@ import com.guyuan.heartrate.R;
 import com.guyuan.heartrate.service.CenterService;
 
 import java.util.ArrayList;
+import java.util.EventListener;
 import java.util.List;
 
 /**
@@ -21,7 +24,7 @@ import java.util.List;
  */
 public class BlueToothAdapter extends RecyclerView.Adapter<BlueToothAdapter.Holder> {
     private Context context;
-    private List<CenterService.BleDev> bleDevList = new ArrayList<>();
+    private List<BluetoothDevice> bleDevList = new ArrayList<>();
     private int layoutId;
     private BlueToothAdapterListener listener;
 
@@ -40,8 +43,12 @@ public class BlueToothAdapter extends RecyclerView.Adapter<BlueToothAdapter.Hold
 
     @Override
     public void onBindViewHolder(@NonNull Holder holder, int position) {
-        final CenterService.BleDev bleDev = bleDevList.get(position);
-        holder.title.setText(bleDev.dev.getName());
+        final BluetoothDevice bleDev = bleDevList.get(position);
+        if (!TextUtils.isEmpty(bleDev.getName())) {
+            holder.title.setText(bleDev.getName());
+        } else {
+            holder.title.setText(bleDev.getAddress());
+        }
         holder.connect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -75,20 +82,28 @@ public class BlueToothAdapter extends RecyclerView.Adapter<BlueToothAdapter.Hold
     }
 
 
-    public void setData(List<CenterService.BleDev> list) {
+    public void setData(List<BluetoothDevice> list) {
         bleDevList.clear();
         bleDevList.addAll(list);
         notifyDataSetChanged();
     }
 
+    public void addData(BluetoothDevice device) {
+        bleDevList.add(device);
+        notifyDataSetChanged();
+    }
 
     public void clearData() {
         bleDevList.clear();
         notifyDataSetChanged();
     }
 
+    public List<BluetoothDevice> getBleDevList() {
+        return bleDevList;
+    }
+
     public interface BlueToothAdapterListener {
-        void connect(CenterService.BleDev bleDev);
+        void connect(BluetoothDevice bleDev);
     }
 
 }

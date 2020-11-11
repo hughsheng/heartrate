@@ -5,7 +5,13 @@
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <!--Android 6.0及后续版本扫描蓝牙,需要定位权限(进入GPS设置,可以看到蓝牙定位)-->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.BLUETOOTH_PRIVILEGED" />
+
     <application
+        android:name=".base.app.AppApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -23,9 +29,11 @@
         </activity>
         <activity
             android:name=".ui.device.DeviceActivity"
-            tools:ignore="LockedOrientationActivity"
             android:launchMode="singleTop"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity" />
+
+        <service android:name=".service.CenterService" />
     </application>
 
 </manifest>

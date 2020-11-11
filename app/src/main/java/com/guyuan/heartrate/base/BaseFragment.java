@@ -13,6 +13,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import com.google.android.material.snackbar.Snackbar;
+import com.guyuan.heartrate.base.app.AppApplication;
+import com.inuker.bluetooth.library.BluetoothClient;
 
 /**
  * created by tl
@@ -23,7 +25,7 @@ public abstract class BaseFragment extends Fragment {
     protected AlertDialog loadingDialog;
     protected View rootView;
     protected FragmentManager childFragmentManager;
-
+    protected BluetoothClient bluetoothClient = AppApplication.getInstance().getBleClient();
 
     @Nullable
     @Override

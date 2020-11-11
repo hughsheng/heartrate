@@ -7,4 +7,6 @@
     <string name="disconnect">设备未连接!</string>
     <string name="connected">设备已连接</string>
     <string name="tired_tip">疲劳驾驶提醒</string>
+    <string name="connect_time">累计时长：</string>
+    <string name="reading">读取中&#8230;</string>
 </resources>

@@ -1,8 +1,13 @@
 package com.guyuan.heartrate.ui.device;
 
+import android.bluetooth.BluetoothDevice;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 
@@ -12,7 +17,24 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.guyuan.heartrate.R;
 import com.guyuan.heartrate.adapter.BlueToothAdapter;
 import com.guyuan.heartrate.base.BaseActivity;
+import com.guyuan.heartrate.base.app.AppApplication;
+import com.guyuan.heartrate.service.BluetoothBusBean;
 import com.guyuan.heartrate.service.CenterService;
+import com.guyuan.heartrate.util.CommonUtl;
+import com.guyuan.heartrate.util.ConstanceValue;
+import com.inuker.bluetooth.library.connect.response.BleConnectResponse;
+import com.inuker.bluetooth.library.model.BleGattProfile;
+import com.inuker.bluetooth.library.search.SearchResult;
+import com.inuker.bluetooth.library.search.response.SearchResponse;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.inuker.bluetooth.library.Constants.REQUEST_SUCCESS;
 
 /**
  * @author : tl
@@ -25,6 +47,7 @@ public class DeviceActivity extends BaseActivity {
 
     private TextView back_tv;
     private RecyclerView device_rv;
+    private BlueToothAdapter adapter;
 
     public static void start(Context context) {
         Intent starter = new Intent(context, DeviceActivity.class);
@@ -51,15 +74,54 @@ public class DeviceActivity extends BaseActivity {
         });
         device_rv = findViewById(R.id.device_rv);
 
-        BlueToothAdapter adapter = new BlueToothAdapter(this, R.layout.item_device);
+        adapter = new BlueToothAdapter(this, R.layout.item_device);
         adapter.setListener(new BlueToothAdapter.BlueToothAdapterListener() {
             @Override
-            public void connect(CenterService.BleDev bleDev) {
-
+            public void connect(BluetoothDevice bleDev) {
+                showLoadingWithStatus(fragmentManager, "连接中...");
+                bluetoothClient.connect(bleDev.getAddress(), new BleConnectResponse() {
+                    @Override
+                    public void onResponse(int code, BleGattProfile data) {
+                        hideLoading();
+                        if (code == REQUEST_SUCCESS) {//连接成功
+                            application.sendStatus(bleDev.getAddress(), true);
+                            finish();
+                        } else {
+                            application.sendStatus("", false);
+                        }
+                    }
+                });
             }
         });
         device_rv.setLayoutManager(new LinearLayoutManager(this));
         device_rv.setAdapter(adapter);
+
+        //蓝牙搜索回调
+        bluetoothClient.search(CommonUtl.getSearchRequest(), new SearchResponse() {
+            @Override
+            public void onSearchStarted() {
+
+            }
+
+            @Override
+            public void onDeviceFounded(SearchResult device) {
+                BluetoothDevice bleDevice = device.device;
+                List<BluetoothDevice> deviceList = adapter.getBleDevList();
+                if (bleDevice != null && !deviceList.contains(bleDevice) && !TextUtils.isEmpty(bleDevice.getAddress())) {
+                    adapter.addData(bleDevice);
+                }
+            }
+
+            @Override
+            public void onSearchStopped() {
+
+            }
+
+            @Override
+            public void onSearchCanceled() {
+
+            }
+        });
     }
 
 
