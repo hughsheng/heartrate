@@ -24,6 +24,7 @@ import com.guyuan.heartrate.R;
 import com.guyuan.heartrate.base.BaseFragment;
 import com.guyuan.heartrate.util.CommonUtl;
 import com.guyuan.heartrate.util.ConstanceValue;
+import com.inuker.bluetooth.library.connect.response.BleNotifyResponse;
 import com.inuker.bluetooth.library.connect.response.BleReadResponse;
 
 import java.text.SimpleDateFormat;
@@ -104,6 +105,8 @@ public class SportFragment extends BaseFragment {
     private void getHeartRate() {
         UUID heartServiceUUID = UUID.fromString(ConstanceValue.HEART_RATE_SERVICE_UUID);
         UUID heartCharacteristicUUID = UUID.fromString(ConstanceValue.HEART_RATE_CHARACTERISTIC_UUID);
+
+
         new Thread() {
             @Override
             public void run() {
@@ -112,17 +115,31 @@ public class SportFragment extends BaseFragment {
                     try {
                         Thread.sleep(2000);
                         if (!TextUtils.isEmpty(ConstanceValue.macAddress)) {
-                            bluetoothClient.read(ConstanceValue.macAddress, heartServiceUUID, heartCharacteristicUUID,
-                                    new BleReadResponse() {
-                                        @Override
-                                        public void onResponse(int code, byte[] data) {
-                                            if (code == REQUEST_SUCCESS) {
-                                                status_tv.setText(String.valueOf(CommonUtl.bytesToInt(data, 0)));
-                                            } else {
-                                                showToastTip("读取心率失败");
-                                            }
-                                        }
-                                    });
+//                            bluetoothClient.read(ConstanceValue.macAddress, heartServiceUUID, heartCharacteristicUUID,
+//                                    new BleReadResponse() {
+//                                        @Override
+//                                        public void onResponse(int code, byte[] data) {
+//                                            if (code == REQUEST_SUCCESS) {
+//                                                status_tv.setText(String.valueOf(CommonUtl.bytesToInt(data, 0)));
+//                                            } else {
+//                                                showToastTip("读取心率失败");
+//                                            }
+//                                        }
+//                                    });
+
+                            bluetoothClient.notify(ConstanceValue.macAddress, heartServiceUUID, heartCharacteristicUUID, new BleNotifyResponse() {
+                                @Override
+                                public void onNotify(UUID service, UUID character, byte[] value) {
+                                    status_tv.setText(String.valueOf(CommonUtl.bytesToInt(value, 0)));
+                                }
+
+                                @Override
+                                public void onResponse(int code) {
+                                    if (code != REQUEST_SUCCESS) {
+                                        showToastTip("读取心率失败");
+                                    }
+                                }
+                            });
                         }
 
                     } catch (Exception e) {
