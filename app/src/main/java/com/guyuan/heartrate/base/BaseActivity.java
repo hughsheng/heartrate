@@ -196,11 +196,4 @@ public abstract class BaseActivity extends AppCompatActivity {
         loadingDialogFragment.dismiss();
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (bluetoothClient != null && !TextUtils.isEmpty(ConstanceValue.macAddress)) {
-            bluetoothClient.disconnect(ConstanceValue.macAddress);
-        }
-    }
 }

@@ -25,7 +25,8 @@ public abstract class BaseFragment extends Fragment {
     protected AlertDialog loadingDialog;
     protected View rootView;
     protected FragmentManager childFragmentManager;
-    protected BluetoothClient bluetoothClient = AppApplication.getInstance().getBleClient();
+    protected AppApplication application=AppApplication.getInstance();
+    protected BluetoothClient bluetoothClient = application.getBleClient();
 
     @Nullable
     @Override

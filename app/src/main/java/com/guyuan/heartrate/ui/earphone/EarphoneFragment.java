@@ -3,6 +3,7 @@ package com.guyuan.heartrate.ui.earphone;
 import android.bluetooth.BluetoothClass;
 import android.content.Context;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -58,12 +59,12 @@ public class EarphoneFragment extends BaseFragment {
                 if (connect.equals(getString(R.string.bind))) {
                     DeviceActivity.start(getContext());
                 } else if (connect.equals(getString(R.string.unbind))) {
-                    bluetoothClient.disconnect(ConstanceValue.macAddress);
+                    CommonUtl.disConnectAndRelease();
                 }
             }
         });
-        boolean isConnect = bluetoothClient.getConnectStatus(ConstanceValue.macAddress) == STATUS_DEVICE_CONNECTED;
-        setUI(isConnect);
+
+        setUI(!TextUtils.isEmpty(ConstanceValue.macAddress));
     }
 
     public void setUI(boolean connect) {

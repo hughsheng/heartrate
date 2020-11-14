@@ -23,6 +23,7 @@ import com.guyuan.heartrate.service.BluetoothBusBean;
 import com.guyuan.heartrate.service.CenterService;
 import com.guyuan.heartrate.util.CommonUtl;
 import com.guyuan.heartrate.util.ConstanceValue;
+import com.inuker.bluetooth.library.Constants;
 import com.inuker.bluetooth.library.connect.response.BleConnectResponse;
 import com.inuker.bluetooth.library.model.BleGattProfile;
 import com.inuker.bluetooth.library.search.SearchResult;
@@ -80,17 +81,15 @@ public class DeviceActivity extends BaseActivity {
             @Override
             public void connect(BluetoothDevice bleDev) {
                 showLoadingWithStatus(fragmentManager, "连接中...");
-                bluetoothClient.connect(bleDev.getAddress(), new BleConnectResponse() {
+                boolean connected = bluetoothClient.getConnectStatus(bleDev.getAddress()) == Constants.STATUS_DEVICE_CONNECTED;
+                bluetoothClient.registerConnectStatusListener(bleDev.getAddress(),
+                        application.getConnectStatusListener());
+                bluetoothClient.connect(bleDev.getAddress(), application.getOptions(), new BleConnectResponse() {
                     @Override
                     public void onResponse(int code, BleGattProfile data) {
                         hideLoading();
                         if (code == REQUEST_SUCCESS) {//连接成功
-                            application.sendStatus(bleDev.getAddress(), true);
-                            bluetoothClient.registerConnectStatusListener(bleDev.getAddress(),
-                                    application.getConnectStatusListener());
                             finish();
-                        } else {
-                            application.sendStatus("", false);
                         }
                     }
                 });

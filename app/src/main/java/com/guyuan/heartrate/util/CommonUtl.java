@@ -4,11 +4,19 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
+import android.text.TextUtils;
 
 import com.guyuan.heartrate.base.app.AppApplication;
+import com.guyuan.heartrate.busbean.BlueToothConnectBusBean;
+import com.inuker.bluetooth.library.connect.listener.BleConnectStatusListener;
 import com.inuker.bluetooth.library.search.SearchRequest;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.List;
+
+import static com.inuker.bluetooth.library.Constants.STATUS_CONNECTED;
+import static com.inuker.bluetooth.library.Constants.STATUS_DISCONNECTED;
 
 /**
  * @author : tl
@@ -50,5 +58,13 @@ public class CommonUtl {
                 ((src[offset + 2] & 0xFF) << 16) |
                 ((src[offset + 3] & 0xFF) << 24));
         return value;
+    }
+
+    //断开连接，释放资源
+    public static void disConnectAndRelease() {
+        if (!TextUtils.isEmpty(ConstanceValue.macAddress)) {
+            AppApplication application = AppApplication.getInstance();
+            application.getBleClient().disconnect(ConstanceValue.macAddress);
+        }
     }
 }

@@ -67,6 +67,7 @@ public class SportFragment extends BaseFragment {
         status_tv = getView().findViewById(R.id.status_tv);
         tip_switch = getView().findViewById(R.id.tip_switch);
         cm = getView().findViewById(R.id.cm);
+        tip_iv = getView().findViewById(R.id.tip_iv);
         connect_time_tv = getView().findViewById(R.id.connect_time_tv);
         tip_switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -78,9 +79,8 @@ public class SportFragment extends BaseFragment {
                 }
             }
         });
-        tip_iv = getView().findViewById(R.id.tip_iv);
-        boolean isConnect = bluetoothClient.getConnectStatus(ConstanceValue.macAddress) == STATUS_DEVICE_CONNECTED;
-        setUI(isConnect);
+
+        setUI(!TextUtils.isEmpty(ConstanceValue.macAddress));
         getHeartRate();
     }
 
@@ -111,18 +111,19 @@ public class SportFragment extends BaseFragment {
                 while (true) {
                     try {
                         Thread.sleep(2000);
-                    //    if (!TextUtils.isEmpty(ConstanceValue.macAddress)) {
+                        if (!TextUtils.isEmpty(ConstanceValue.macAddress)) {
                             bluetoothClient.read(ConstanceValue.macAddress, heartServiceUUID, heartCharacteristicUUID,
                                     new BleReadResponse() {
                                         @Override
                                         public void onResponse(int code, byte[] data) {
                                             if (code == REQUEST_SUCCESS) {
-                                                status_tv.setText(Math.random() + "");
-                                                //status_tv.setText(String.valueOf(CommonUtl.bytesToInt(data, 0)));
+                                                status_tv.setText(String.valueOf(CommonUtl.bytesToInt(data, 0)));
+                                            } else {
+                                                showToastTip("读取心率失败");
                                             }
                                         }
                                     });
-                    //    }
+                        }
 
                     } catch (Exception e) {
                         e.printStackTrace();

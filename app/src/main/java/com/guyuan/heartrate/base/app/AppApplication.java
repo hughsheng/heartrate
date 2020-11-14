@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.WindowManager;
 
 import com.guyuan.heartrate.busbean.BlueToothConnectBusBean;
@@ -12,6 +13,7 @@ import com.guyuan.heartrate.util.ConstanceValue;
 import com.guyuan.heartrate.util.SharedPreferencesUtils;
 import com.inuker.bluetooth.library.BluetoothClient;
 import com.inuker.bluetooth.library.connect.listener.BleConnectStatusListener;
+import com.inuker.bluetooth.library.connect.options.BleConnectOptions;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -34,13 +36,30 @@ public class AppApplication extends Application {
         @Override
         public void onConnectStatusChanged(String mac, int status) {
             if (status == STATUS_CONNECTED) {
+                Log.i("bleTl", "mac=" + mac + "连接成功");
                 sendStatus(mac, true);
             } else if (status == STATUS_DISCONNECTED) {
+                Log.i("bleTl", "mac=" + mac + "连接失败" );
                 sendStatus("", false);
                 bleClient.unregisterConnectStatusListener(mac, connectStatusListener);
             }
         }
     };
+
+    private BleConnectOptions options = new BleConnectOptions.Builder()
+            .setConnectRetry(0)   // 连接如果失败重试3次
+            .setConnectTimeout(5000)   // 连接超时30s
+            .setServiceDiscoverRetry(3)  // 发现服务如果失败重试3次
+            .setServiceDiscoverTimeout(20000)  // 发现服务超时20s
+            .build();
+
+    public BleConnectOptions getOptions() {
+        return options;
+    }
+
+    public BleConnectStatusListener getConnectStatusListener() {
+        return connectStatusListener;
+    }
 
     @Override
     public void onCreate() {
@@ -48,18 +67,13 @@ public class AppApplication extends Application {
         application = this;
         mSharedPreferencesUtils = SharedPreferencesUtils.getInstance(this);
         bleClient = new BluetoothClient(this);
+
         String connectAddress = CommonUtl.getConnectedAddress();
         if (!TextUtils.isEmpty(connectAddress)) {//打开app时如果已经连上蓝牙设备则设置蓝牙连接状态监听
-            bleClient.registerConnectStatusListener(connectAddress, connectStatusListener);
+            ConstanceValue.macAddress = connectAddress;
+            bleClient.registerConnectStatusListener(connectAddress, application.getConnectStatusListener());
         }
 
-    }
-
-    public void sendStatus(String address, boolean isConnect) {
-        ConstanceValue.macAddress = address;
-        BlueToothConnectBusBean busBean = new BlueToothConnectBusBean();
-        busBean.setConnect(isConnect);
-        EventBus.getDefault().post(busBean);
     }
 
 
@@ -71,9 +85,13 @@ public class AppApplication extends Application {
         height = metric.heightPixels; // 屏幕高度（像素
     }
 
-    public BleConnectStatusListener getConnectStatusListener() {
-        return connectStatusListener;
+    public void sendStatus(String address, boolean isConnect) {
+        ConstanceValue.macAddress = address;
+        BlueToothConnectBusBean busBean = new BlueToothConnectBusBean();
+        busBean.setConnect(isConnect);
+        EventBus.getDefault().post(busBean);
     }
+
 
     public static AppApplication getInstance() {
         return application;

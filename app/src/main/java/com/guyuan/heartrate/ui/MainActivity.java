@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.text.TextUtils;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
@@ -22,6 +23,7 @@ import com.guyuan.heartrate.service.CenterService;
 import com.guyuan.heartrate.ui.earphone.EarphoneFragment;
 import com.guyuan.heartrate.ui.sport.SportFragment;
 import com.guyuan.heartrate.util.ActivityUtils;
+import com.guyuan.heartrate.util.CommonUtl;
 import com.guyuan.heartrate.util.ConstanceValue;
 
 import org.greenrobot.eventbus.EventBus;
@@ -78,7 +80,6 @@ public class MainActivity extends BaseActivity implements RadioGroup.OnCheckedCh
 
     //未连接状态
     private void disConnectedState() {
-        ConstanceValue.isActiveDisconnect = true;
         sportFragment.setUI(false);
         earphoneFragment.setUI(false);
     }
@@ -87,6 +88,7 @@ public class MainActivity extends BaseActivity implements RadioGroup.OnCheckedCh
     public void onDestroy() {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
+    //    CommonUtl.disConnectAndRelease();
     }
 
 
