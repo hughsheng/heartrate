@@ -17,7 +17,6 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.guyuan.heartrate.R;
 import com.guyuan.heartrate.base.BaseFragment;
-import com.guyuan.heartrate.service.CenterService;
 import com.guyuan.heartrate.ui.MainActivity;
 import com.guyuan.heartrate.ui.device.DeviceActivity;
 import com.guyuan.heartrate.util.CommonUtl;

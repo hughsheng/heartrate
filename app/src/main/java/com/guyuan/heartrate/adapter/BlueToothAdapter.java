@@ -11,12 +11,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.guyuan.heartrate.R;
-import com.guyuan.heartrate.service.CenterService;
-
 import java.util.ArrayList;
-import java.util.EventListener;
 import java.util.List;
 
 /**

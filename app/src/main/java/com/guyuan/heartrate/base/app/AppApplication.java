@@ -47,7 +47,7 @@ public class AppApplication extends Application {
     };
 
     private BleConnectOptions options = new BleConnectOptions.Builder()
-            .setConnectRetry(0)   // 连接如果失败重试3次
+            .setConnectRetry(3)   // 连接如果失败重试3次
             .setConnectTimeout(5000)   // 连接超时30s
             .setServiceDiscoverRetry(3)  // 发现服务如果失败重试3次
             .setServiceDiscoverTimeout(20000)  // 发现服务超时20s

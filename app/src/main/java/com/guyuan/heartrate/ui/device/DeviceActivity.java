@@ -1,41 +1,24 @@
 package com.guyuan.heartrate.ui.device;
 
 import android.bluetooth.BluetoothDevice;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.guyuan.heartrate.R;
 import com.guyuan.heartrate.adapter.BlueToothAdapter;
 import com.guyuan.heartrate.base.BaseActivity;
-import com.guyuan.heartrate.base.app.AppApplication;
-import com.guyuan.heartrate.service.BluetoothBusBean;
-import com.guyuan.heartrate.service.CenterService;
 import com.guyuan.heartrate.util.CommonUtl;
 import com.guyuan.heartrate.util.ConstanceValue;
-import com.inuker.bluetooth.library.Constants;
 import com.inuker.bluetooth.library.connect.response.BleConnectResponse;
 import com.inuker.bluetooth.library.model.BleGattProfile;
 import com.inuker.bluetooth.library.search.SearchResult;
 import com.inuker.bluetooth.library.search.response.SearchResponse;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
-
-import java.util.ArrayList;
 import java.util.List;
-
 import static com.inuker.bluetooth.library.Constants.REQUEST_SUCCESS;
 
 /**
@@ -81,14 +64,14 @@ public class DeviceActivity extends BaseActivity {
             @Override
             public void connect(BluetoothDevice bleDev) {
                 showLoadingWithStatus(fragmentManager, "连接中...");
-                boolean connected = bluetoothClient.getConnectStatus(bleDev.getAddress()) == Constants.STATUS_DEVICE_CONNECTED;
-                bluetoothClient.registerConnectStatusListener(bleDev.getAddress(),
-                        application.getConnectStatusListener());
+                String address = bleDev.getAddress();
+                bluetoothClient.registerConnectStatusListener(address, application.getConnectStatusListener());
                 bluetoothClient.connect(bleDev.getAddress(), application.getOptions(), new BleConnectResponse() {
                     @Override
                     public void onResponse(int code, BleGattProfile data) {
                         hideLoading();
                         if (code == REQUEST_SUCCESS) {//连接成功
+                            application.saveCacheData(ConstanceValue.LAST_CONNECTED_BLE, address);
                             finish();
                         }
                     }

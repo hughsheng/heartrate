@@ -1,9 +1,5 @@
 package com.guyuan.heartrate.ui;
 
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.text.TextUtils;
@@ -17,19 +13,19 @@ import androidx.fragment.app.FragmentTransaction;
 import com.guyuan.heartrate.R;
 import com.guyuan.heartrate.base.BaseActivity;
 import com.guyuan.heartrate.busbean.BlueToothConnectBusBean;
-import com.guyuan.heartrate.databinding.ActivityMainBinding;
-import com.guyuan.heartrate.service.BluetoothBusBean;
-import com.guyuan.heartrate.service.CenterService;
 import com.guyuan.heartrate.ui.earphone.EarphoneFragment;
 import com.guyuan.heartrate.ui.sport.SportFragment;
 import com.guyuan.heartrate.util.ActivityUtils;
 import com.guyuan.heartrate.util.CommonUtl;
 import com.guyuan.heartrate.util.ConstanceValue;
+import com.inuker.bluetooth.library.connect.response.BleConnectResponse;
+import com.inuker.bluetooth.library.model.BleGattProfile;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import static com.inuker.bluetooth.library.Constants.REQUEST_SUCCESS;
 import static java.security.AccessController.getContext;
 
 public class MainActivity extends BaseActivity implements RadioGroup.OnCheckedChangeListener {
@@ -88,7 +84,7 @@ public class MainActivity extends BaseActivity implements RadioGroup.OnCheckedCh
     public void onDestroy() {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
-    //    CommonUtl.disConnectAndRelease();
+        //    CommonUtl.disConnectAndRelease();
     }
 
 
@@ -97,6 +93,30 @@ public class MainActivity extends BaseActivity implements RadioGroup.OnCheckedCh
         rp.setOnCheckedChangeListener(this);
     }
 
+
+    @Override
+    protected void onBlueToothOpened() {
+        super.onBlueToothOpened();
+        connectBle();
+    }
+
+    //连接上次连接的蓝牙设备
+    private void connectBle() {
+        String address = (String) application.getCacheData(ConstanceValue.LAST_CONNECTED_BLE, "");
+        if (!TextUtils.isEmpty(address)) {
+            bluetoothClient.registerConnectStatusListener(address, application.getConnectStatusListener());
+            bluetoothClient.connect(address, application.getOptions(), new BleConnectResponse() {
+                @Override
+                public void onResponse(int code, BleGattProfile data) {
+                    hideLoading();
+                    if (code == REQUEST_SUCCESS) {//连接成功
+                        application.saveCacheData(ConstanceValue.LAST_CONNECTED_BLE, address);
+                        finish();
+                    }
+                }
+            });
+        }
+    }
 
     //切换fragment
     private void switchContent(Fragment from, Fragment to, String tag) {

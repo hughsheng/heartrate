@@ -9,4 +9,5 @@
     <string name="tired_tip">疲劳驾驶提醒</string>
     <string name="connect_time">累计时长：</string>
     <string name="reading">读取中&#8230;</string>
+    <string name="not_connect_tip">未连接蓝牙设备,无法打开提醒功能</string>
 </resources>
