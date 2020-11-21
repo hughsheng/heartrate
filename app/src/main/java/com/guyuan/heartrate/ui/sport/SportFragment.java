@@ -49,6 +49,7 @@ public class SportFragment extends BaseFragment {
     private ImageView tip_iv;
     private Chronometer cm;
     private TextView connect_time_tv;
+    private TextView average_heart_rate_tv;
     private boolean isCollecting = false;  //是否正在采集心率数据
     private List<Integer> dataList = new ArrayList<>();//采集数据集合
     private int averageHeartRate;//心率平均值
@@ -75,6 +76,7 @@ public class SportFragment extends BaseFragment {
 
     private void initView() {
         status_tv = getView().findViewById(R.id.status_tv);
+        average_heart_rate_tv = getView().findViewById(R.id.average_heart_rate_tv);
         tip_switch = getView().findViewById(R.id.tip_switch);
         cm = getView().findViewById(R.id.cm);
         tip_iv = getView().findViewById(R.id.tip_iv);
@@ -106,11 +108,15 @@ public class SportFragment extends BaseFragment {
         });
 
         cm.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onChronometerTick(Chronometer chronometer) {
                 // 从开始计时到现在满了5分钟
-                if (SystemClock.elapsedRealtime() - chronometer.getBase() == 5 * 1000) {
+                if (SystemClock.elapsedRealtime() - chronometer.getBase() >= 60 * 1000) {
                     closeCollecting();
+                    averageHeartRate = (int) dataList.stream().mapToInt(i -> i).average().orElse(0);
+                    average_heart_rate_tv.setText(String.format(getResources().getString(R.string.average_heart_rate), averageHeartRate));
+                    average_heart_rate_tv.setVisibility(View.VISIBLE);
                 }
             }
         });
@@ -132,6 +138,8 @@ public class SportFragment extends BaseFragment {
     //打开心率采集
     private void openCollecting() {
         dataList.clear();
+        average_heart_rate_tv.setText("");
+        average_heart_rate_tv.setVisibility(View.GONE);
         connect_time_tv.setVisibility(View.VISIBLE);
         cm.setVisibility(View.VISIBLE);
         cm.setBase(SystemClock.elapsedRealtime());
@@ -149,12 +157,7 @@ public class SportFragment extends BaseFragment {
     }
 
     //心率对比
-    @RequiresApi(api = Build.VERSION_CODES.N)
     private void compareHeartRate(int heartRate) {
-        if (averageHeartRate == 0) {
-            averageHeartRate = (int) dataList.stream().mapToInt(i -> i).average().orElse(0);
-        }
-
         if (Math.abs(averageHeartRate - heartRate) > 5) {//报警
             tip_iv.setImageResource(R.mipmap.ic_launcher);
             mediaPlayer.start();
@@ -195,7 +198,6 @@ public class SportFragment extends BaseFragment {
 //                                    });
 
                             bluetoothClient.notify(ConstanceValue.macAddress, heartServiceUUID, heartCharacteristicUUID, new BleNotifyResponse() {
-                                @RequiresApi(api = Build.VERSION_CODES.N)
                                 @Override
                                 public void onNotify(UUID service, UUID character, byte[] value) {
                                     int heartRate = value[1];

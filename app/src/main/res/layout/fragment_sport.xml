@@ -81,11 +81,12 @@
         android:id="@+id/connect_time_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
         android:text="@string/connect_time"
         android:textColor="@color/white"
         android:textSize="16sp"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/average_heart_rate_tv"
         app:layout_constraintEnd_toStartOf="@+id/cm"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintHorizontal_chainStyle="packed"
@@ -106,4 +107,19 @@
         app:layout_constraintStart_toEndOf="@+id/connect_time_tv"
         app:layout_constraintTop_toTopOf="@+id/connect_time_tv"
         tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/average_heart_rate_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/average_heart_rate"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:text="average_heart_rate" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

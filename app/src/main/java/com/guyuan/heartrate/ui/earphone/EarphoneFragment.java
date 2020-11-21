@@ -50,6 +50,10 @@ public class EarphoneFragment extends BaseFragment {
 
     private void initView() {
         bindTv = getView().findViewById(R.id.bind_tv);
+        String address = (String) application.getCacheData(ConstanceValue.LAST_CONNECTED_BLE, "");
+        if (!TextUtils.isEmpty(address)) {
+            bindTv.setText(R.string.unbind);
+        }
         bindTv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -58,6 +62,7 @@ public class EarphoneFragment extends BaseFragment {
                 if (connect.equals(getString(R.string.bind))) {
                     DeviceActivity.start(getContext());
                 } else if (connect.equals(getString(R.string.unbind))) {
+                    application.saveCacheData(ConstanceValue.LAST_CONNECTED_BLE, "");
                     CommonUtl.disConnectAndRelease();
                 }
             }

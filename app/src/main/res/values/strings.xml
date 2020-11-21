@@ -10,4 +10,5 @@
     <string name="connect_time">累计时长：</string>
     <string name="reading">读取中&#8230;</string>
     <string name="not_connect_tip">未连接蓝牙设备,无法打开提醒功能</string>
+    <string name="average_heart_rate">平均心率：%d</string>
 </resources>
